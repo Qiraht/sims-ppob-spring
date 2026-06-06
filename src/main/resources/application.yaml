@@ -1,3 +1,32 @@
 spring:
   application:
     name: ppob-sims-spring
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:nutech}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:supersecretpassword}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format-sql: true
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+
+
+server:
+  port: 8080
+  forward-headers-strategy: FRAMEWORK
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:supersecretkey}
+    expiration: ${JWT_EXPIRATION:3600000}
