@@ -1,0 +1,11 @@
+services:
+  sims-ppob-spring-api:
+    build:
+      context: src/main/java
+      dockerfile: Dockerfile
+    container_name: sims-ppob-spring-api
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    env_file:
+      - .env
+    restart: always
