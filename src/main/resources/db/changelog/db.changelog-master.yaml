@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/scripts/create_users_table.sql
+  - include:
+      file: db/changelog/scripts/create_user_wallets_table.sql
+  - include:
+      file: db/changelog/scripts/create_services_table.sql
+  - include:
+      file: db/changelog/scripts/create_banners_table.sql
+  - include:
+      file: db/changelog/scripts/create_transactions_table.sql
