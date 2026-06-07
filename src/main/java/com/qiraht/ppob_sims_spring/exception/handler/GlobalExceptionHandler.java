@@ -1,6 +1,8 @@
 package com.qiraht.ppob_sims_spring.exception.handler;
 
 import com.qiraht.ppob_sims_spring.dto.ApiResponse;
+import com.qiraht.ppob_sims_spring.exception.custom.NotFoundException;
+import com.qiraht.ppob_sims_spring.exception.custom.UnAuthorizedException;
 import com.qiraht.ppob_sims_spring.exception.custom.ValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -31,6 +33,20 @@ public class GlobalExceptionHandler {
         ApiResponse<?> body = ApiResponse.error(102, message);
 
         return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBusinessException(NotFoundException ex, HttpServletRequest request) {
+        ApiResponse<Void> body = ApiResponse.error(102, ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(body);
+    }
+
+    @ExceptionHandler(UnAuthorizedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBusinessException(UnAuthorizedException ex, HttpServletRequest request) {
+        ApiResponse<Void> body = ApiResponse.error(102, ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).body(body);
     }
 
 
