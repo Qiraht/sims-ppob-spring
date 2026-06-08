@@ -14,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -76,5 +78,17 @@ public class UserService {
         userRepository.save(user);
 
         return getUserByEmail(user.getEmail());
+    }
+
+    public BigDecimal getUserBalance() {
+        User user = getAuthenticatedUserByEmail();
+
+        return userWalletService.getUserWalletByUser(user).getBalance();
+    }
+
+    public BigDecimal topUpUserBalance(BigDecimal amount) {
+        User user = getAuthenticatedUserByEmail();
+
+        return userWalletService.toUpUserWalletBalance(user, amount);
     }
 }
