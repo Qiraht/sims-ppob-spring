@@ -8,6 +8,8 @@ import com.qiraht.ppob_sims_spring.enums.TransactionType;
 import com.qiraht.ppob_sims_spring.repository.TransactionRepository;
 import com.qiraht.ppob_sims_spring.util.InvoiceGenerator;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -65,5 +67,11 @@ public class TransactionService {
         transactionRepository.save(transaction);
 
         return transaction;
+    }
+
+    public Page<Transaction> getUserTransactions(Pageable pageable) {
+        User user = userService.getAuthenticatedUser();
+
+        return transactionRepository.findAllByUser(user, pageable);
     }
 }
