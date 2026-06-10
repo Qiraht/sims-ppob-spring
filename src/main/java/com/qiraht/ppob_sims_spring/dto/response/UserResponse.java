@@ -6,4 +6,7 @@ public record UserResponse(
         String last_name,
         String profile_image
 ) {
+    public UserResponse() {
+        this(null, null, null, null);
+    }
 }

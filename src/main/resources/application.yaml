@@ -2,6 +2,11 @@ spring:
   application:
     name: ppob-sims-spring
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:nutech}
     username: ${DB_USER:postgres}
@@ -30,3 +35,5 @@ app:
   jwt:
     secret: ${JWT_SECRET:supersecretkey}
     expiration: ${JWT_EXPIRATION:3600000}
+  upload:
+    profile-images: ./uploads/profile/

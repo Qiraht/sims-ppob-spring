@@ -7,13 +7,18 @@ import com.qiraht.ppob_sims_spring.dto.response.UserResponse;
 import com.qiraht.ppob_sims_spring.entity.User;
 import com.qiraht.ppob_sims_spring.service.UserService;
 import com.qiraht.ppob_sims_spring.service.UserWalletService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping
@@ -53,5 +58,15 @@ public class UserController {
         User data = userService.updateUserProfile(request);
 
         return ResponseEntity.ok(ApiResponse.success("success", new UserResponse(data.getEmail(), data.getFirstName(), data.getLastName(), data.getProfileImage())));
+    }
+
+    @PutMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("authenticated()")
+    public ResponseEntity<ApiResponse<UserResponse>> putProfileImageController(
+            @RequestParam("file") MultipartFile file) {
+        User data = userService.updateProfileImage(file);
+
+        return ResponseEntity.ok(ApiResponse.success("Update Profile Image berhasil", new UserResponse(data.getEmail(), data.getFirstName(), data.getLastName(), data.getProfileImage())));
     }
 }
