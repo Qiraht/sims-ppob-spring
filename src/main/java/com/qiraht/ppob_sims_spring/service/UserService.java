@@ -1,34 +1,31 @@
 package com.qiraht.ppob_sims_spring.service;
 
-import com.qiraht.ppob_sims_spring.config.CustomUserDetails;
+import com.qiraht.ppob_sims_spring.dto.CurrentUserPayload;
 import com.qiraht.ppob_sims_spring.dto.request.RegisterRequest;
 import com.qiraht.ppob_sims_spring.dto.request.UpdateProfileRequest;
 import com.qiraht.ppob_sims_spring.entity.User;
 import com.qiraht.ppob_sims_spring.enums.UserStatus;
 import com.qiraht.ppob_sims_spring.exception.custom.NotFoundException;
-import com.qiraht.ppob_sims_spring.exception.custom.UnAuthorizedException;
 import com.qiraht.ppob_sims_spring.exception.custom.ValidationException;
 import com.qiraht.ppob_sims_spring.repository.UserRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+import java.util.UUID;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final UserWalletService userWalletService;
     private final PasswordEncoder passwordEncoder;
+    private final CurrentUserService currentUserService;
 
-    public UserService(UserRepository userRepository, UserWalletService userWalletService, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, CurrentUserService currentUserService) {
         this.userRepository = userRepository;
-        this.userWalletService = userWalletService;
         this.passwordEncoder = passwordEncoder;
+        this.currentUserService = currentUserService;
     }
 
-    public void registerUser(RegisterRequest request) {
+    public User registerUser(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new ValidationException("Email sudah terdaftar");
         }
@@ -46,49 +43,27 @@ public class UserService {
 
         userRepository.save(user);
 
-        userWalletService.createUserWallet(user);
+        return user;
     }
 
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
+    public User getUserById(UUID userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
     }
 
-    public User getAuthenticatedUserByEmail() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public User getAuthenticatedUser() {
+        CurrentUserPayload currentUser = currentUserService.getCurrentUser();
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new UnAuthorizedException("Token tidak valid atau kadaluwarsa");
-        }
-
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof CustomUserDetails userDetails) {
-            return getUserByEmail(userDetails.getUsername());
-        }
-
-        throw new UnAuthorizedException("Token tidak valid atau kadaluwarsa");
+        return getUserById(currentUser.userId());
     }
 
     public User updateUserProfile(UpdateProfileRequest request) {
-        User user = getAuthenticatedUserByEmail();
+        User user = getAuthenticatedUser();
 
         user.setFirstName(request.first_name());
         user.setLastName(request.last_name());
 
         userRepository.save(user);
 
-        return getUserByEmail(user.getEmail());
-    }
-
-    public BigDecimal getUserBalance() {
-        User user = getAuthenticatedUserByEmail();
-
-        return userWalletService.getUserWalletByUser(user).getBalance();
-    }
-
-    public BigDecimal topUpUserBalance(BigDecimal amount) {
-        User user = getAuthenticatedUserByEmail();
-
-        return userWalletService.toUpUserWalletBalance(user, amount);
+        return user;
     }
 }

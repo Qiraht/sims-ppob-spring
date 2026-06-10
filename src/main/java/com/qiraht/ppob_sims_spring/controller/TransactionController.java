@@ -3,7 +3,7 @@ package com.qiraht.ppob_sims_spring.controller;
 import com.qiraht.ppob_sims_spring.dto.ApiResponse;
 import com.qiraht.ppob_sims_spring.dto.request.TopUpRequest;
 import com.qiraht.ppob_sims_spring.dto.response.BalanceResponse;
-import com.qiraht.ppob_sims_spring.service.UserService;
+import com.qiraht.ppob_sims_spring.service.UserWalletService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -19,17 +19,17 @@ import java.math.BigDecimal;
 @Tag(name = "3. Module Transaction")
 @Validated
 public class TransactionController {
-    private final UserService userService;
+    private final UserWalletService userWalletService;
 
-    public TransactionController(UserService userService) {
-        this.userService = userService;
+    public TransactionController(UserWalletService userWalletService) {
+        this.userWalletService = userWalletService;
     }
 
     @GetMapping("/balance")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("authenticated()")
     public ResponseEntity<ApiResponse<BalanceResponse>> getBalanceController() {
-        BigDecimal data = userService.getUserBalance();
+        BigDecimal data = userWalletService.getAuthenticatedtUserWallet().getBalance();
 
         return ResponseEntity.ok(ApiResponse.success("Get Balance Berhasil", new BalanceResponse(data)));
     }
@@ -38,7 +38,7 @@ public class TransactionController {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("authenticated()")
     public ResponseEntity<ApiResponse<BalanceResponse>> postTopUpController(@Valid @RequestBody TopUpRequest request) {
-        BigDecimal data = userService.topUpUserBalance(request.top_up_amount());
+        BigDecimal data = userWalletService.toUpUserWalletBalance(request.top_up_amount());
 
         return ResponseEntity.ok(ApiResponse.success("Top Up Berhasil", new BalanceResponse(data)));
     }

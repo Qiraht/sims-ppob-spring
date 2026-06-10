@@ -6,6 +6,7 @@ import com.qiraht.ppob_sims_spring.dto.request.UpdateProfileRequest;
 import com.qiraht.ppob_sims_spring.dto.response.UserResponse;
 import com.qiraht.ppob_sims_spring.entity.User;
 import com.qiraht.ppob_sims_spring.service.UserService;
+import com.qiraht.ppob_sims_spring.service.UserWalletService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -20,15 +21,18 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class UserController {
     private final UserService userService;
+    private final UserWalletService userWalletService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserWalletService userWalletService) {
         this.userService = userService;
+        this.userWalletService = userWalletService;
     }
 
     @PostMapping("/registration")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ApiResponse<Void>> postRegisterController(@Valid @RequestBody RegisterRequest request) {
-        userService.registerUser(request);
+        User user = userService.registerUser(request);
+        userWalletService.createUserWallet(user);
 
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(ApiResponse.success("Registrasi berhasil dilakukan", null));
     }
@@ -37,7 +41,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("authenticated()")
     public ResponseEntity<ApiResponse<UserResponse>> getProfileController() {
-        User data = userService.getAuthenticatedUserByEmail();
+        User data = userService.getAuthenticatedUser();
 
         return ResponseEntity.ok(ApiResponse.success("success", new UserResponse(data.getEmail(), data.getFirstName(), data.getLastName(), data.getProfileImage())));
     }
