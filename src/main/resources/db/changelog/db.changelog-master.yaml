@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/scripts/create_banners_table.sql
   - include:
       file: db/changelog/scripts/create_transactions_table.sql
+  - include:
+      file: db/changelog/scripts/drop_column_service_id_not_null_transactions.sql
